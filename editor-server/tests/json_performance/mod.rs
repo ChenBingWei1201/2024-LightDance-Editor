@@ -1,8 +1,8 @@
-use std::time::Instant;
 use dotenv::var;
 use sqlx::MySqlPool;
+use std::time::Instant;
 
-#[derive(Debug)]
+#[derive(Debug, sqlx::FromRow)]
 struct LED {
     color_id: i32,
     alpha: i32,
@@ -10,8 +10,7 @@ struct LED {
 
 #[tokio::test]
 pub async fn setup_benchmark() -> Result<(), sqlx::Error> {
-
-    let host = var("DATABASE_URL").expect("MYSQL_HOST is not set");
+    let host = var("MYSQL_TEST_URL").expect("MYSQL_TEST_URL is not set");
     let pool = MySqlPool::connect(host.as_str())
         .await
         .expect("Failed to create mysql pool");
@@ -26,42 +25,42 @@ pub async fn setup_benchmark() -> Result<(), sqlx::Error> {
         }
         let leds_json = serde_json::to_string(&leds_json_array).unwrap();
 
-        let _ = sqlx::query!(
+        let _ = sqlx::query(
             r#"
-                INSERT INTO `led_effect` (`name`, `part_name`, `repeat`, `frames`)
+                INSERT INTO `LEDEffect` (`name`, `part_name`, `repeat`, `frames`)
                 VALUES (?, ?, ?, ?)
             "#,
-            i.to_string(),
-            "test",
-            1,
-            leds_json
         )
+        .bind(i.to_string())
+        .bind("test")
+        .bind(1)
+        .bind(leds_json)
         .execute(&pool)
         .await?;
 
-        let _ = sqlx::query!(
+        let _ = sqlx::query(
             r#"
-                INSERT INTO `led_effect_test` (`name`, `part_name`, `repeat`)
+                INSERT INTO `LEDEffectTest` (`name`, `part_name`, `repeat`)
                 VALUES (?, ?, ?)
             "#,
-            i.to_string(),
-            "test",
-            1
         )
+        .bind(i.to_string())
+        .bind("test")
+        .bind(1)
         .execute(&pool)
         .await?;
 
         for (effect_id, position, color_id, alpha) in leds {
-            let _ = sqlx::query!(
+            let _ = sqlx::query(
                 r#"
-                    INSERT INTO `led` (`effect_id`, `position`, `color_id`, `alpha`)
+                    INSERT INTO `LED` (`effect_id`, `position`, `color_id`, `alpha`)
                     VALUES (?, ?, ?, ?)
                 "#,
-                effect_id,
-                position,
-                color_id,
-                alpha
             )
+            .bind(effect_id)
+            .bind(position)
+            .bind(color_id)
+            .bind(alpha)
             .execute(&pool)
             .await?;
         }
@@ -75,20 +74,18 @@ pub async fn setup_benchmark() -> Result<(), sqlx::Error> {
 // pub async fn run(pool: sqlx::MySqlPool) -> sqlx::Result<()> {
 #[tokio::test]
 pub async fn run_benchmark() -> Result<(), sqlx::Error> {
-
-    let host = var("DATABASE_URL").expect("MYSQL_HOST is not set");
+    let host = var("MYSQL_TEST_URL").expect("MYSQL_TEST_URL is not set");
     let pool = MySqlPool::connect(host.as_str())
         .await
         .expect("Failed to create mysql pool");
 
     let start = Instant::now();
-    let led_data: Vec::<LED> = sqlx::query_as!(
-        LED,
+    let led_data = sqlx::query_as::<_, LED>(
         r#"
-            SELECT color_id, alpha FROM led
+            SELECT color_id, alpha FROM LED
             WHERE effect_id = 1
             ORDER BY position ASC;
-        "#
+        "#,
     )
     .fetch_all(&pool)
     .await?;
@@ -97,10 +94,10 @@ pub async fn run_benchmark() -> Result<(), sqlx::Error> {
 
     let start = Instant::now();
     let mut led_data_from_json = Vec::<LED>::new();
-    let frames: sqlx::types::JsonValue = sqlx::query_scalar!(
+    let frames = sqlx::query_scalar::<_, sqlx::types::JsonValue>(
         r#"
-            SELECT frames FROM led_effect WHERE id = 1 LIMIT 1;
-        "#
+            SELECT frames FROM LEDEffect WHERE id = 1 LIMIT 1;
+        "#,
     )
     .fetch_one(&pool)
     .await?;
@@ -117,8 +114,7 @@ pub async fn run_benchmark() -> Result<(), sqlx::Error> {
     println!("Fetched {:?} rows", led_data_from_json.len());
     println!("Fetching LEDs by JSON took {:?}", start.elapsed());
 
-    // println!("Effect data: {:?}", led_data);
-    println!("Effect data: {:?}", led_data_from_json);
+    // println!("Effect data: {:?}", led_data_from_json);
 
     Ok(())
 }

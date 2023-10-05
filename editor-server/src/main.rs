@@ -38,7 +38,7 @@ async fn graphiql() -> impl IntoResponse {
 
 pub static APP_STATE: OnceCell<AppState> = OnceCell::new();
 
-#[tokio::main]
+#[tokio::main(flavor = "multi_thread")]
 async fn main() {
     dotenv::dotenv().ok();
 
@@ -46,7 +46,7 @@ async fn main() {
     let mysql_pool = build_mysql_pool().await;
     let redis_client = build_redis_client().await;
 
-    if let Err(write_error) = fs::write(Path::new("src/graphql/schema.graphql"), schema.sdl()) {
+    if let Err(write_error) = fs::write(Path::new("graphql/schema.graphql"), schema.sdl()) {
         println!("Error writing schema file: {}", write_error);
     }
 
@@ -65,8 +65,7 @@ async fn main() {
     #[allow(non_snake_case)]
     let SERVER_PORT = std::env::var("SERVER_PORT").unwrap_or_else(|_| "4000".to_string());
 
-    println!("GraphiQL: http://localhost:{}/graphiql", SERVER_PORT);
-    println!("Playground: http://localhost:{}/playground", SERVER_PORT);
+    println!("GraphiQL: http://localhost:{}/api/graphql", SERVER_PORT);
 
     axum::Server::bind(&format!("0.0.0.0:{}", SERVER_PORT).parse().unwrap())
         .serve(app.into_make_service())
