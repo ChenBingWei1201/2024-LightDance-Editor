@@ -62,12 +62,11 @@ async fn main() {
         .route_service("/ws", GraphQLSubscription::new(schema.clone()))
         .layer(Extension(schema));
 
-    #[allow(non_snake_case)]
-    let SERVER_PORT = std::env::var("SERVER_PORT").unwrap_or_else(|_| "4000".to_string());
+    let server_port = std::env::var("SERVER_PORT").unwrap_or_else(|_| "4000".to_string());
 
-    println!("GraphiQL: http://localhost:{}/api/graphql", SERVER_PORT);
+    println!("GraphiQL: http://localhost:{}/api/graphql", server_port);
 
-    axum::Server::bind(&format!("0.0.0.0:{}", SERVER_PORT).parse().unwrap())
+    axum::Server::bind(&format!("0.0.0.0:{}", server_port).parse().unwrap())
         .serve(app.into_make_service())
         .await
         .unwrap();

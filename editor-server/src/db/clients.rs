@@ -4,7 +4,7 @@ use sqlx::{MySql, MySqlPool, Pool};
 use std::sync::Arc;
 
 pub async fn build_mysql_pool() -> Arc<Pool<MySql>> {
-    let mysql_host = var("MYSQL_URL").expect("MYSQL_URL is not set");
+    let mysql_host = var("DATABASE_URL").expect("DATABASE_URL is not set");
     let mysql_pool = MySqlPool::connect(mysql_host.as_str())
         .await
         .expect("Failed to create mysql pool");

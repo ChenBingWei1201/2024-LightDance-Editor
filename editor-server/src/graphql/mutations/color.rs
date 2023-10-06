@@ -1,12 +1,12 @@
 use async_graphql::{Context, InputObject, Object, Result as GQLResult};
 
-use crate::server::extractors::Authentication;
+use crate::db::types::ColorData;
 use crate::graphql::{
     subscriptions::color::{ColorMutationMode, ColorPayload},
     subscriptor::Subscriptor,
     types::color::Color,
 };
-use crate::db::types::ColorData;
+use crate::server::extractors::Authentication;
 
 #[derive(InputObject, Default)]
 pub struct ColorUpdateInput {
@@ -39,7 +39,7 @@ impl ColorMutation {
                 UPDATE Color SET name = ?, r = ?, g = ?, b = ?
                 WHERE id = ?;
             "#,
-            data.color.clone(),
+            &data.color,
             data.color_code[0],
             data.color_code[1],
             data.color_code[2],
@@ -76,7 +76,7 @@ impl ColorMutation {
                 INSERT INTO Color (name, r, g, b)
                 VALUES (?, ?, ?, ?);
             "#,
-            data.color,
+            &data.color,
             data.color_code[0],
             data.color_code[1],
             data.color_code[2]
@@ -110,7 +110,7 @@ impl ColorMutation {
         let mysql = &*auth.mysql_pool;
 
         let color = sqlx::query_as!(
-            ColorData,
+            ColorData, 
             r#"
                 SELECT * FROM Color
                 WHERE id = ?;

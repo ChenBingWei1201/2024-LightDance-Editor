@@ -1,8 +1,8 @@
 use async_graphql::{Context, Object, Result as GQLResult};
 
-use crate::server::extractors::Authentication;
-use crate::graphql::types::{ColorMap, ColorMapScalar};
 use crate::db::types::ColorData;
+use crate::graphql::types::{ColorMap, ColorMapScalar};
+use crate::server::extractors::Authentication;
 
 #[derive(Default)]
 pub struct ColorQuery;
@@ -17,10 +17,10 @@ impl ColorQuery {
         let redis = &*auth.redis_client;
 
         let result = sqlx::query_as!(
-            ColorData,
+            ColorData, 
             r#"
                 SELECT * FROM Color;
-            "#
+            "#,
         )
         .fetch_all(mysql)
         .await?

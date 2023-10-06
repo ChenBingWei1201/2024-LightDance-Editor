@@ -3,6 +3,7 @@ use redis::Client;
 use sqlx::{MySql, Pool};
 use std::sync::Arc;
 
+use crate::db::types::UserData;
 use crate::server::state::AppState;
 use crate::APP_STATE;
 
@@ -28,10 +29,11 @@ where
         } = APP_STATE.get().unwrap();
         let mysql = &**mysql_pool;
 
-        let test_user = sqlx::query!(
+        let test_user = sqlx::query_as!(
+            UserData,
             r#"
                 SELECT * FROM User ORDER BY id LIMIT 1;
-            "#
+            "#,
         )
         .fetch_one(mysql)
         .await;

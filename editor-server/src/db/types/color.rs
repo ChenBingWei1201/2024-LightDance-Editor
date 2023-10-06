@@ -1,3 +1,4 @@
+#[derive(sqlx::FromRow, Debug, Clone)]
 pub struct ColorData {
     pub id: i32,
     pub name: String,
