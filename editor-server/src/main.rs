@@ -46,7 +46,7 @@ async fn main() {
     let mysql_pool = build_mysql_pool().await;
     let redis_client = build_redis_client().await;
 
-    if let Err(write_error) = fs::write(Path::new("graphql/schema.graphql"), schema.sdl()) {
+    if let Err(write_error) = fs::write(Path::new("schema.graphql"), schema.sdl()) {
         println!("Error writing schema file: {}", write_error);
     }
 

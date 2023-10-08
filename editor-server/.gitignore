@@ -3,4 +3,4 @@
 target/
 
 src/prisma/
-graphql/schema.graphql
+schema.graphql
