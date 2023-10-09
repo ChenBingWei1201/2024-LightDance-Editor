@@ -1,6 +1,6 @@
-pub(crate) mod types;
 pub(crate) mod schema;
 pub(crate) mod subscriptor;
+pub(crate) mod types;
 
 mod mutations;
 mod queries;

@@ -70,7 +70,7 @@ where
             .await;
 
             Ok(Authentication {
-                username: String::from(test_user.name),
+                username: test_user.name,
                 user_id: test_user.id,
                 mysql_pool: mysql_pool.clone(),
                 redis_client: redis_client.clone(),

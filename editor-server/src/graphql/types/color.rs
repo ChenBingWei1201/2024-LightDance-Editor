@@ -13,7 +13,7 @@ pub struct Color {
 impl From<ColorData> for Color {
     fn from(data: ColorData) -> Self {
         Self {
-            id: data.id.clone(),
+            id: data.id,
             color: data.name.clone(),
             color_code: vec![data.r, data.g, data.b],
         }

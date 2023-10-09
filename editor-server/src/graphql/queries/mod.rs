@@ -4,4 +4,3 @@ use color::*;
 
 #[derive(async_graphql::MergedObject, Default)]
 pub struct QueryRoot(ColorQuery);
-

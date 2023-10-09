@@ -21,4 +21,3 @@ pub async fn build_redis_client() -> Arc<Client> {
 
     Arc::new(redis_client)
 }
-

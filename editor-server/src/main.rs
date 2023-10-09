@@ -9,7 +9,7 @@ use axum::{
     routing::get,
     Extension, Router,
 };
-use dotenv;
+
 use once_cell::sync::OnceCell;
 use std::fs;
 use std::path::Path;

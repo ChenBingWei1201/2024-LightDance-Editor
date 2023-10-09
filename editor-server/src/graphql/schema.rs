@@ -1,5 +1,5 @@
-use async_graphql::Schema;
 use crate::graphql::{MutationRoot, QueryRoot, SubscriptionRoot};
+use async_graphql::Schema;
 
 pub type AppSchema = Schema<QueryRoot, MutationRoot, SubscriptionRoot>;
 

@@ -110,7 +110,7 @@ impl ColorMutation {
         let mysql = &*auth.mysql_pool;
 
         let color = sqlx::query_as!(
-            ColorData, 
+            ColorData,
             r#"
                 SELECT * FROM Color
                 WHERE id = ?;

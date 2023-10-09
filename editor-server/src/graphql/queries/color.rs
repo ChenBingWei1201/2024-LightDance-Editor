@@ -17,7 +17,7 @@ impl ColorQuery {
         let redis = &*auth.redis_client;
 
         let result = sqlx::query_as!(
-            ColorData, 
+            ColorData,
             r#"
                 SELECT * FROM Color;
             "#,
