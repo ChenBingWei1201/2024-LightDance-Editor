@@ -64,6 +64,7 @@ async fn main() {
 
     let server_port = std::env::var("SERVER_PORT").unwrap_or_else(|_| "4000".to_string());
 
+    println!("Server is ready!");
     println!("GraphiQL: http://localhost:{}/api/graphql", server_port);
 
     axum::Server::bind(&format!("0.0.0.0:{}", server_port).parse().unwrap())
