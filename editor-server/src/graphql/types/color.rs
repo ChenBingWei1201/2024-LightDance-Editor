@@ -1,7 +1,7 @@
 use async_graphql::SimpleObject;
 use serde::{Deserialize, Serialize};
 
-use crate::db::types::ColorData;
+use crate::db::types::color::ColorData;
 
 #[derive(SimpleObject, Serialize, Deserialize, Default)]
 pub struct Color {

@@ -4,7 +4,9 @@ use std::time::Instant;
 
 #[derive(Debug, sqlx::FromRow)]
 struct LED {
+    #[allow(unused)]
     color_id: i32,
+    #[allow(unused)]
     alpha: i32,
 }
 

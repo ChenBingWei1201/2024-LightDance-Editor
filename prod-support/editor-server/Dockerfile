@@ -1,16 +1,20 @@
 FROM rust:1.70
 
-RUN cargo new --bin editor-server
+RUN cargo new editor-server
 WORKDIR /editor-server
-
-COPY ./editor-server/Cargo.toml .
-COPY ./editor-server/Cargo.lock .
 
 COPY ./editor-server/.cargo ./.cargo
 COPY ./editor-server/prisma ./prisma
+RUN echo '\n\n[workspace]\nmembers = ["prisma"]\n' >> ./Cargo.toml
 
-RUN cargo build -p prisma
-RUN cargo prisma --version
+WORKDIR /editor-server/prisma
+RUN cargo fetch
+
+WORKDIR /editor-server
+RUN cargo prisma migrate deploy
+
+COPY ./editor-server/Cargo.toml .
+COPY ./editor-server/Cargo.lock .
 
 RUN cargo fetch
 RUN rm -r ./src
@@ -18,6 +22,4 @@ RUN rm -r ./src
 COPY ./editor-server/.env.production ./.env
 COPY ./editor-server/src ./src
 
-EXPOSE 4000
-CMD ["bash", "-c", "cargo prisma migrate deploy && cargo run --release"]
-# CMD ["bash", "-c", "ls ./src -la"]
+CMD ["bash", "-c", "cargo run --release"]

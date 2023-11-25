@@ -1,12 +1,12 @@
 use async_graphql::{Context, InputObject, Object, Result as GQLResult};
 
-use crate::db::types::ColorData;
+use crate::db::types::color::ColorData;
 use crate::graphql::{
     subscriptions::color::{ColorMutationMode, ColorPayload},
     subscriptor::Subscriptor,
     types::color::Color,
 };
-use crate::server::extractors::Authentication;
+use crate::types::global::UserContext;
 
 #[derive(InputObject, Default)]
 pub struct ColorUpdateInput {
@@ -31,8 +31,10 @@ impl ColorMutation {
         id: i32,
         data: ColorUpdateInput,
     ) -> GQLResult<Color> {
-        let auth = ctx.data::<Authentication>()?;
-        let mysql = &*auth.mysql_pool;
+        let context = ctx.data::<UserContext>()?;
+        let app_state = &context.app_state;
+
+        let mysql = app_state.mysql_pool();
 
         let _ = sqlx::query!(
             r#"
@@ -53,7 +55,8 @@ impl ColorMutation {
             id,
             color: Some(data.color.clone()),
             color_code: Some(data.color_code.clone()),
-            edit_by: auth.user_id,
+            edit_by: context.user_id,
+            // edit_by: 0,
         };
 
         Subscriptor::publish(color_payload);
@@ -68,8 +71,10 @@ impl ColorMutation {
     }
 
     async fn add_color(&self, ctx: &Context<'_>, data: ColorCreateInput) -> GQLResult<Color> {
-        let auth = ctx.data::<Authentication>()?;
-        let mysql = &*auth.mysql_pool;
+        let context = ctx.data::<UserContext>()?;
+        let app_state = &context.app_state;
+
+        let mysql = app_state.mysql_pool();
 
         let id = sqlx::query!(
             r#"
@@ -90,7 +95,7 @@ impl ColorMutation {
             id,
             color: Some(data.color.clone()),
             color_code: Some(data.color_code.clone()),
-            edit_by: auth.user_id,
+            edit_by: context.user_id,
         };
 
         Subscriptor::publish(color_payload);
@@ -106,8 +111,10 @@ impl ColorMutation {
 
     #[allow(unused)]
     async fn delete_color(&self, ctx: &Context<'_>, id: i32) -> GQLResult<bool> {
-        let auth = ctx.data::<Authentication>()?;
-        let mysql = &*auth.mysql_pool;
+        let context = ctx.data::<UserContext>()?;
+        let app_state = &context.app_state;
+
+        let mysql = app_state.mysql_pool();
 
         let color = sqlx::query_as!(
             ColorData,
@@ -137,7 +144,7 @@ impl ColorMutation {
             id,
             color: None,
             color_code: None,
-            edit_by: auth.user_id,
+            edit_by: context.user_id,
         };
 
         Subscriptor::publish(color_payload);

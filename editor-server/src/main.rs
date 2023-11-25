@@ -1,30 +1,34 @@
 pub mod db;
+pub mod global;
 pub mod graphql;
 pub mod server;
+pub mod types;
 
 use async_graphql::http::GraphiQLSource;
-use async_graphql_axum::{GraphQLRequest, GraphQLResponse, GraphQLSubscription};
+use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use axum::{
     response::{Html, IntoResponse},
-    routing::get,
+    routing::{get, get_service},
     Extension, Router,
 };
-
-use once_cell::sync::OnceCell;
-use std::fs;
-use std::path::Path;
 use std::sync::Arc;
 
+use std::fs;
+use std::path::Path;
+
 use crate::db::clients::{build_mysql_pool, build_redis_client};
-use crate::server::{extractors::Authentication, state::AppState};
-use graphql::schema::{build_schema, AppSchema};
+use crate::global::APP_STATE;
+use crate::graphql::schema::{build_schema, AppSchema};
+use crate::graphql::subscriptor::ws::GraphQLSubscription;
+use crate::server::ws::{ws_on_connect, ws_on_disconnect};
+use crate::server::{extractors::Authentication, states::AppState};
 
 async fn graphql(
-    auth: Authentication,
+    Authentication(context): Authentication,
     schema: Extension<AppSchema>,
     req: GraphQLRequest,
 ) -> GraphQLResponse {
-    schema.execute(req.into_inner().data(auth)).await.into()
+    schema.execute(req.into_inner().data(context)).await.into()
 }
 
 async fn graphiql() -> impl IntoResponse {
@@ -36,35 +40,38 @@ async fn graphiql() -> impl IntoResponse {
     )
 }
 
-pub static APP_STATE: OnceCell<AppState> = OnceCell::new();
-
 #[tokio::main(flavor = "multi_thread")]
 async fn main() {
     dotenv::dotenv().ok();
 
     let schema = build_schema().await;
-    let mysql_pool = build_mysql_pool().await;
-    let redis_client = build_redis_client().await;
 
     if let Err(write_error) = fs::write(Path::new("schema.graphql"), schema.sdl()) {
         println!("Error writing schema file: {}", write_error);
     }
 
+    let mysql_pool = build_mysql_pool().await;
+    let redis_client = build_redis_client().await;
+    // Set database clients in global app state
     APP_STATE
-        .set(AppState {
-            mysql_pool: Arc::clone(&mysql_pool),
-            redis_client: Arc::clone(&redis_client),
-        })
+        .set(Arc::new(AppState::new(mysql_pool, redis_client)))
         .unwrap();
 
     let app = Router::new()
+        // Main routes for GraphQL
         .route("/api/graphql", get(graphiql).post(graphql))
-        .route_service("/ws", GraphQLSubscription::new(schema.clone()))
+        // Websocket route for GraphQL subscriptions with connection and disconnection callbacks
+        .route(
+            "/ws",
+            get_service(GraphQLSubscription::new(ws_on_connect, ws_on_disconnect)),
+        )
+        // Pass schema as extension to routes
         .layer(Extension(schema));
 
     let server_port = std::env::var("SERVER_PORT").unwrap_or_else(|_| "4000".to_string());
 
     println!("Server is ready!");
+    println!("Listening on port {}", server_port);
     println!("GraphiQL: http://localhost:{}/api/graphql", server_port);
 
     axum::Server::bind(&format!("0.0.0.0:{}", server_port).parse().unwrap())

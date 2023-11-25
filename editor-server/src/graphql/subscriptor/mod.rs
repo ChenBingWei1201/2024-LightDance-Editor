@@ -1,3 +1,5 @@
+pub(crate) mod ws;
+
 use std::{
     any::{Any, TypeId},
     collections::HashMap,

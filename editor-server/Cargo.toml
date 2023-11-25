@@ -5,13 +5,14 @@ version = "0.1.0"
 edition = "2021"
 
 [workspace]
-resolver = "2"
 members = ["prisma"]
 
 [dependencies]
 async-graphql = "6.0.6"
 async-graphql-axum = "6.0.6"
-axum = "0.6.20"
+async-trait = "0.1.74"
+axum = { version = "0.6.20", features = ["ws"] }
+axum-extra = { version = "0.8.0", features = ["cookie"] }
 dotenv = "0.15.0"
 futures-channel = "0.3.28"
 futures-core = "0.3.28"
@@ -24,6 +25,7 @@ slab = "0.4.9"
 sqlx = { version = "0.7.1", features = ["mysql", "runtime-tokio", "migrate"] }
 tokio = { version = "1.32.0", features = ["full"] }
 tower = "0.4.13"
+tower-service = "0.3.2"
 
 [profile.dev]
 opt-level = 0
