@@ -1,11 +1,13 @@
+use crate::global::APP_CLIENTS;
+use crate::types::global::UserContext;
+
 use axum::{async_trait, extract::FromRequestParts, http::request::Parts};
 use axum_extra::extract::CookieJar;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
-use crate::global::APP_STATE;
-use crate::types::global::UserContext;
-
+/// Authencate user by token stored in cookie
+/// Then pass a user context to the handler
 #[derive(Debug)]
 pub struct Authentication(pub UserContext);
 
@@ -30,7 +32,7 @@ impl FromRequestParts<()> for Authentication {
             None => return Err("No token"),
         };
 
-        let app_state = APP_STATE.get().unwrap().clone();
+        let app_state = APP_CLIENTS.get().unwrap().clone();
         let _mysql_pool = app_state.mysql_pool();
 
         // TODO: check token

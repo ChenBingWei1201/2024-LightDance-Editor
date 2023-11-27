@@ -1,8 +1,8 @@
-use async_graphql::{Context, Object, Result as GQLResult};
-
 use crate::db::types::color::ColorData;
 use crate::graphql::types::color_map::{ColorMap, ColorMapScalar};
 use crate::types::global::UserContext;
+
+use async_graphql::{Context, Object, Result as GQLResult};
 
 #[derive(Default)]
 pub struct ColorQuery;

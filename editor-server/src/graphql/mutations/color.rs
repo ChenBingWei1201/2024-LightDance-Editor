@@ -1,5 +1,3 @@
-use async_graphql::{Context, InputObject, Object, Result as GQLResult};
-
 use crate::db::types::color::ColorData;
 use crate::graphql::{
     subscriptions::color::{ColorMutationMode, ColorPayload},
@@ -7,6 +5,8 @@ use crate::graphql::{
     types::color::Color,
 };
 use crate::types::global::UserContext;
+
+use async_graphql::{Context, InputObject, Object, Result as GQLResult};
 
 #[derive(InputObject, Default)]
 pub struct ColorUpdateInput {

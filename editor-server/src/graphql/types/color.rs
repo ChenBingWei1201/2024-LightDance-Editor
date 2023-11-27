@@ -1,7 +1,7 @@
+use crate::db::types::color::ColorData;
+
 use async_graphql::SimpleObject;
 use serde::{Deserialize, Serialize};
-
-use crate::db::types::color::ColorData;
 
 #[derive(SimpleObject, Serialize, Deserialize, Default)]
 pub struct Color {
@@ -19,15 +19,3 @@ impl From<ColorData> for Color {
         }
     }
 }
-
-// impl Into<ColorData> for Color {
-//     fn into(self) -> ColorData {
-//         ColorData {
-//             id: self.id,
-//             name: self.color,
-//             r: self.color_code[0],
-//             g: self.color_code[1],
-//             b: self.color_code[2],
-//         }
-//     }
-// }

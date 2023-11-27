@@ -1,4 +1,5 @@
-use std::{borrow::Cow, convert::Infallible, future::Future, str::FromStr};
+use crate::graphql::schema::AppSchema;
+use crate::types::global::UserContext;
 
 use async_graphql::{
     futures_util::task::{Context, Poll},
@@ -22,10 +23,8 @@ use futures_util::{
     Sink, SinkExt, Stream, StreamExt,
 };
 use std::sync::Arc;
+use std::{borrow::Cow, convert::Infallible, future::Future, str::FromStr};
 use tower_service::Service;
-
-use crate::graphql::schema::AppSchema;
-use crate::types::global::UserContext;
 
 /// A GraphQL protocol extractor.
 ///

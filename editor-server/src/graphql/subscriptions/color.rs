@@ -1,7 +1,7 @@
+use crate::graphql::subscriptor::Subscriptor;
+
 use async_graphql::{Enum, SimpleObject, Subscription};
 use futures_core::stream::Stream;
-
-use crate::graphql::subscriptor::Subscriptor;
 
 #[derive(Enum, Clone, Copy, Eq, PartialEq, Default)]
 pub enum ColorMutationMode {

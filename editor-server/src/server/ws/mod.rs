@@ -1,15 +1,15 @@
 use crate::db::types::user::UserData;
-use crate::global::APP_STATE;
+use crate::global::APP_CLIENTS;
 use crate::types::global::UserContext;
 
 /// Callbak for websocket connection
 /// A user context is returned if the connection is successful
 /// The context will be used to clean up the database when the connection is closed
 pub async fn ws_on_connect(_connection_params: serde_json::Value) -> Result<UserContext, String> {
-    // Use test user if in development
+    // Use test user in development
     #[cfg(debug_assertions)]
     {
-        let app_state = APP_STATE.get().unwrap().clone();
+        let app_state = APP_CLIENTS.get().unwrap().clone();
         let mysql_pool = app_state.mysql_pool();
 
         let test_user = sqlx::query_as!(

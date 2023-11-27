@@ -1,9 +1,9 @@
+use crate::graphql::types::color::Color;
+
 use async_graphql::SimpleObject;
 use async_graphql::{Scalar, ScalarType, Value};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-
-use crate::graphql::types::color::Color;
 
 #[derive(SimpleObject, Serialize, Deserialize)]
 pub struct ColorMapColor {
